@@ -22,6 +22,38 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+        
+        /* Smooth transitions */
+        * {
+            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        /* Button hover effects */
+        button:hover, a.button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active, a.button:active {
+            transform: translateY(0);
+        }
+        
+        /* Card hover effects */
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus rings */
+        *:focus {
+            outline: 2px solid #3B82F6;
+            outline-offset: 2px;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
