@@ -161,15 +161,20 @@
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     <!-- Top Bar -->
-    <header class="bg-white border-b border-gray-200 shadow-sm">
+    <header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">
+                <div class="flex items-center space-x-4">
+                    <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-gray-100" onclick="toggleMobileMenu()">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
                     <h1 class="text-xl font-bold text-gray-900">Tax Manager</h1>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-600">{{ user.email }}</span>
-                    <span class="px-3 py-1 text-xs font-medium rounded-full {% if user.subscription_status == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <span class="hidden sm:inline text-sm text-gray-600">{{ user.email }}</span>
+                    <span class="px-2 sm:px-3 py-1 text-xs font-medium rounded-full {% if user.subscription_status == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                         {{ user.subscription_status|title }}
                     </span>
                     <a href="/logout" class="text-sm text-gray-600 hover:text-gray-900 font-medium">Logout</a>
@@ -177,10 +182,57 @@
             </div>
         </div>
     </header>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 shadow-lg">
+        <nav class="px-4 py-2 space-y-1">
+            <a href="/dashboard" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'dashboard' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                Dashboard
+            </a>
+            <a href="/income" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'income' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                Money In
+            </a>
+            <a href="/expenses" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'expenses' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                Expenses
+            </a>
+            <a href="/tax" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'tax' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                Your Tax
+            </a>
+            {% if user.uc_enabled %}
+            <a href="/uc" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'uc' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                Universal Credit
+            </a>
+            {% endif %}
+            <div class="pt-2 mt-2 border-t border-gray-200">
+                <a href="/settings" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'settings' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                    Settings
+                </a>
+                <a href="/exports" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'exports' %}bg-blue-50 text-blue-700 font-semibold{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                    Exports
+                </a>
+            </div>
+        </nav>
+    </div>
+    
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('mobile-menu');
+            const btn = document.getElementById('mobile-menu-btn');
+            if (!menu.contains(event.target) && !btn.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
 
     <div class="flex max-w-7xl mx-auto">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen shadow-sm">
+        <aside class="hidden md:block w-64 bg-white border-r border-gray-200 min-h-screen shadow-sm">
             <nav class="p-4 space-y-1">
                 <a href="/dashboard" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'dashboard' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                     Dashboard
@@ -211,7 +263,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-8 fade-in">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8 fade-in">
             {% block content %}{% endblock %}
         </main>
     </div>
