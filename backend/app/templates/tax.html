@@ -166,7 +166,7 @@
             <div class="w-full bg-gray-200 rounded-full h-2">
                 <div 
                     class="h-2 rounded-full {% if tax_summary.vat_threshold_proximity > 90 %}bg-red-500{% elif tax_summary.vat_threshold_proximity > 80 %}bg-yellow-500{% else %}bg-gray-400{% endif %}"
-                    style="width: {{ tax_summary.vat_threshold_proximity|min(100) }}%"
+                    style="width: {{ [tax_summary.vat_threshold_proximity, 100]|min }}%"
                 ></div>
             </div>
             <div class="flex justify-between text-xs text-gray-500 mt-1">

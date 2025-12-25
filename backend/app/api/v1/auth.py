@@ -50,9 +50,16 @@ async def login(
         if not user:
             return RedirectResponse(url="/login?error=User not found", status_code=303)
         
-        # For now, redirect to a simple success page
-        # In production, you'd set a session cookie with the JWT token
-        return RedirectResponse(url=f"/dashboard?token={response.session.access_token}", status_code=303)
+        # Set session cookie with JWT token
+        redirect = RedirectResponse(url="/dashboard", status_code=303)
+        redirect.set_cookie(
+            key="access_token",
+            value=response.session.access_token,
+            httponly=True,
+            max_age=3600,  # 1 hour
+            samesite="lax"
+        )
+        return redirect
         
     except Exception as e:
         return RedirectResponse(url=f"/login?error={str(e)}", status_code=303)
