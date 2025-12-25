@@ -1,0 +1,5 @@
+{
+	"name": "Tax Manager",
+	"image": "mcr.microsoft.com/devcontainers/python:3.11",
+	"postCreateCommand": "pip install --upgrade pip"
+}

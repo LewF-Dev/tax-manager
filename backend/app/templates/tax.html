@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Tax - Tax Manager{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Tax Summary</h2>
+
+    <!-- Tax Year Info -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+        <p class="text-sm text-blue-900">
+            <strong>Tax Year {{ tax_summary.tax_year }}</strong> runs from {{ tax_summary.tax_year_start.strftime('%d %B %Y') }} to {{ tax_summary.tax_year_end.strftime('%d %B %Y') }}.
+            This is an estimate based on current HMRC rules.
+        </p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Income & Expenses -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Income & Expenses</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Total Income</span>
+                    <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_income) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Total Expenses</span>
+                    <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_expenses) }}</span>
+                </div>
+                <div class="pt-3 border-t border-gray-200">
+                    <div class="flex justify-between">
+                        <span class="font-medium text-gray-900">Net Profit</span>
+                        <span class="font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.net_profit) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tax Breakdown -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Estimated Tax</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">Income Tax</span>
+                    <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.income_tax) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">NI Class 2</span>
+                    <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.ni_class2) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600">NI Class 4</span>
+                    <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.ni_class4) }}</span>
+                </div>
+                <div class="pt-3 border-t border-gray-200">
+                    <div class="flex justify-between">
+                        <span class="font-medium text-gray-900">Total Tax</span>
+                        <span class="font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_tax) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tax to Set Aside -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-lg font-medium text-gray-900">Tax to Set Aside</h3>
+                <p class="text-sm text-gray-600 mt-1">Based on {{ user.tax_set_aside_percentage }}% of income</p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}</div>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600">
+            This is the amount you should have set aside from your income. 
+            {% if tax_summary.tax_to_set_aside > tax_summary.total_tax %}
+            You're setting aside more than the estimated tax, which provides a buffer.
+            {% elif tax_summary.tax_to_set_aside < tax_summary.total_tax %}
+            <span class="text-yellow-700">Consider increasing your set-aside percentage in Settings.</span>
+            {% else %}
+            This matches your estimated tax liability.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- How This is Calculated -->
+    <div class="bg-white rounded-lg border border-gray-200 mb-8">
+        <button 
+            onclick="document.getElementById('calculation-details').classList.toggle('hidden')"
+            class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50"
+        >
+            <span class="text-lg font-medium text-gray-900">How This is Calculated</span>
+            <span class="text-gray-400">▼</span>
+        </button>
+        <div id="calculation-details" class="hidden px-6 py-4 border-t border-gray-200 space-y-4 text-sm">
+            <div>
+                <h4 class="font-medium text-gray-900 mb-2">Income Tax</h4>
+                <p class="text-gray-600 mb-2">Based on your net profit of £{{ "%.2f"|format(tax_summary.net_profit) }}:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-4">
+                    <li>Personal Allowance: £12,570 (tax-free)</li>
+                    <li>Basic rate (20%): £12,571 - £50,270</li>
+                    <li>Higher rate (40%): £50,271 - £125,140</li>
+                    <li>Additional rate (45%): Over £125,140</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900 mb-2">National Insurance Class 2</h4>
+                <p class="text-gray-600">
+                    Flat weekly rate of £3.45 (£179.40 per year) if profits exceed £6,725.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-900 mb-2">National Insurance Class 4</h4>
+                <p class="text-gray-600 mb-2">Based on profits:</p>
+                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-4">
+                    <li>9% on profits between £12,570 and £50,270</li>
+                    <li>2% on profits over £50,270</li>
+                </ul>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+                <p class="text-xs text-gray-500">
+                    These calculations use the {{ tax_summary.tax_year }} tax year rates. 
+                    Rates are updated when HMRC announces changes.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- HMRC Registration -->
+    {% if user.trading_start_date %}
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">HMRC Registration</h3>
+        <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+                <span class="text-gray-600">Trading started</span>
+                <span class="font-medium text-gray-900">{{ user.trading_start_date.strftime('%d %B %Y') }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Registration deadline</span>
+                <span class="font-medium text-gray-900">{{ tax_summary.hmrc_registration_deadline.strftime('%d %B %Y') }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-600">Days remaining</span>
+                <span class="font-medium {% if days_until_hmrc_deadline < 30 %}text-red-600{% else %}text-gray-900{% endif %}">
+                    {{ days_until_hmrc_deadline }} days
+                </span>
+            </div>
+        </div>
+        <p class="text-xs text-gray-500 mt-4">
+            You must register for Self Assessment by 5 October following the end of the tax year you started trading.
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- VAT Threshold -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">VAT Registration</h3>
+        <div class="mb-4">
+            <div class="flex justify-between text-sm mb-2">
+                <span class="text-gray-600">Current turnover</span>
+                <span class="font-medium text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_income) }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                    class="h-2 rounded-full {% if tax_summary.vat_threshold_proximity > 90 %}bg-red-500{% elif tax_summary.vat_threshold_proximity > 80 %}bg-yellow-500{% else %}bg-gray-400{% endif %}"
+                    style="width: {{ tax_summary.vat_threshold_proximity|min(100) }}%"
+                ></div>
+            </div>
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                <span>£0</span>
+                <span>£85,000 threshold</span>
+            </div>
+        </div>
+        <p class="text-sm text-gray-600">
+            {% if tax_summary.vat_threshold_proximity > 90 %}
+            <span class="text-red-700 font-medium">⚠️ You're approaching the VAT registration threshold.</span>
+            You must register if turnover exceeds £90,000 in a 12-month period.
+            {% elif tax_summary.vat_threshold_proximity > 80 %}
+            <span class="text-yellow-700 font-medium">You're approaching the VAT registration threshold.</span>
+            Monitor your turnover carefully.
+            {% else %}
+            You're {{ "%.1f"|format(tax_summary.vat_threshold_proximity) }}% of the way to the £85,000 VAT threshold.
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Tax Manager{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <!-- Status Summary -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Status</h2>
+        <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-2">
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Current tax year</span>
+                <span class="font-medium text-gray-900">{{ tax_summary.tax_year }}</span>
+            </div>
+            {% if user.uc_enabled %}
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Universal Credit</span>
+                <span class="font-medium text-gray-900">Enabled</span>
+            </div>
+            {% endif %}
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Subscription</span>
+                <span class="font-medium text-gray-900">{{ user.subscription_status|title }}</span>
+            </div>
+            {% if user.trading_start_date %}
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Trading since</span>
+                <span class="font-medium text-gray-900">{{ user.trading_start_date.strftime('%d %B %Y') }}</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- The Three Numbers That Matter -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">This Tax Year</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Total Income -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="text-sm text-gray-600 mb-2">Total Income</div>
+                <div class="text-3xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_income) }}</div>
+            </div>
+
+            <!-- Tax to Set Aside -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="text-sm text-gray-600 mb-2">Tax to Set Aside</div>
+                <div class="text-3xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}</div>
+                <div class="text-xs text-gray-500 mt-1">{{ user.tax_set_aside_percentage }}% of income</div>
+            </div>
+
+            <!-- Estimated Tax -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="text-sm text-gray-600 mb-2">Estimated Tax</div>
+                <div class="text-3xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.total_tax) }}</div>
+                <div class="text-xs text-gray-500 mt-1">Based on £{{ "%.2f"|format(tax_summary.net_profit) }} profit</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UC Status (if enabled) -->
+    {% if user.uc_enabled and uc_period %}
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Universal Credit</h2>
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <div class="text-sm text-gray-600">Current Assessment Period</div>
+                    <div class="text-lg font-medium text-gray-900">
+                        {{ uc_period.period_start.strftime('%d %b') }} - {{ uc_period.period_end.strftime('%d %b %Y') }}
+                    </div>
+                </div>
+                {% if uc_period.reported_at %}
+                <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Reported</span>
+                {% else %}
+                <span class="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-800">Not Reported</span>
+                {% endif %}
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                    <div class="text-gray-600">Income</div>
+                    <div class="font-medium text-gray-900 amount">£{{ "%.2f"|format(uc_period.total_income) }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600">Expenses</div>
+                    <div class="font-medium text-gray-900 amount">£{{ "%.2f"|format(uc_period.total_expenses) }}</div>
+                </div>
+                <div>
+                    <div class="text-gray-600">Net Profit</div>
+                    <div class="font-medium text-gray-900 amount">£{{ "%.2f"|format(uc_period.net_profit) }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Next Actions -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">Next Actions</h2>
+        <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200">
+            {% if not user.trading_start_date %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 bg-blue-500 rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900">Set your trading start date</p>
+                        <a href="/settings" class="text-sm text-blue-600 hover:text-blue-700">Go to Settings →</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.uc_enabled and uc_period and not uc_period.reported_at %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 bg-yellow-500 rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900">UC report not yet marked as reported</p>
+                        <a href="/uc" class="text-sm text-blue-600 hover:text-blue-700">Go to Universal Credit →</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if user.trading_start_date and days_until_hmrc_deadline %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 {% if days_until_hmrc_deadline < 30 %}bg-red-500{% else %}bg-gray-400{% endif %} rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900">
+                            HMRC registration deadline: {{ tax_summary.hmrc_registration_deadline.strftime('%d %B %Y') }}
+                        </p>
+                        <p class="text-xs text-gray-600">{{ days_until_hmrc_deadline }} days remaining</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if tax_summary.vat_threshold_proximity > 80 %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 bg-yellow-500 rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900">Approaching VAT registration threshold</p>
+                        <p class="text-xs text-gray-600">{{ "%.1f"|format(tax_summary.vat_threshold_proximity) }}% of £85,000 threshold</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if recent_income_count == 0 %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 bg-gray-400 rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900">No income recorded this month</p>
+                        <a href="/income" class="text-sm text-blue-600 hover:text-blue-700">Add Income →</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not next_actions_exist %}
+            <div class="p-4">
+                <p class="text-sm text-gray-600">No actions required. Everything is up to date.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 gap-4">
+        <a href="/income" class="block p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+            <div class="text-sm font-medium text-gray-900">Add Income</div>
+            <div class="text-xs text-gray-600 mt-1">Record a payment received</div>
+        </a>
+        <a href="/expenses" class="block p-4 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+            <div class="text-sm font-medium text-gray-900">Add Expense</div>
+            <div class="text-xs text-gray-600 mt-1">Record a payment made</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Exports - Tax Manager{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Data Exports</h2>
+
+    <!-- Export Options -->
+    <div class="space-y-6">
+        <!-- CSV Export -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Transaction Export (CSV)</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Download all your income and expense transactions in CSV format. 
+                Suitable for importing into spreadsheets or accounting software.
+            </p>
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    Includes: Date, Type, Amount, Description, Category, Tax Year
+                </div>
+                <form method="GET" action="/api/v1/export/csv">
+                    <button 
+                        type="submit"
+                        class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                        Download CSV
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Full Data Export -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Full Data Export (JSON)</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Download all your data in JSON format. This includes your profile, all transactions, 
+                UC reports, and tax snapshots. Required for GDPR compliance.
+            </p>
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    Includes: Profile, Income, Expenses, UC Reports, Tax Snapshots
+                </div>
+                <form method="GET" action="/api/v1/export/full">
+                    <button 
+                        type="submit"
+                        class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    >
+                        Download JSON
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Information -->
+    <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="font-medium text-gray-900 mb-2">About Data Exports</h4>
+        <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <li>Exports contain all your data up to the moment you download</li>
+            <li>CSV format is best for spreadsheets and basic analysis</li>
+            <li>JSON format contains complete data including metadata</li>
+            <li>Exports are generated in real-time, not cached</li>
+            <li>Your data is never shared with third parties</li>
+        </ul>
+    </div>
+
+    <!-- Data Portability -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <h4 class="font-medium text-blue-900 mb-2">Data Portability</h4>
+        <p class="text-sm text-blue-900">
+            You own your data. You can export it at any time, for any reason. 
+            If you decide to leave, you can take everything with you.
+        </p>
+    </div>
+</div>
+{% endblock %}

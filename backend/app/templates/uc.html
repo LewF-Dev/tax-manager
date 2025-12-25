@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Universal Credit - Tax Manager{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Universal Credit</h2>
+
+    <!-- Explanation -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+        <h3 class="font-medium text-blue-900 mb-2">How UC Reporting Works</h3>
+        <ul class="text-sm text-blue-900 space-y-1 list-disc list-inside">
+            <li>Report income and expenses on a <strong>cash-received basis</strong></li>
+            <li>Your assessment period runs from the {{ user.uc_assessment_day }}th of each month</li>
+            <li>Only report money actually received or paid in that period</li>
+            <li>£0 months must still be reported</li>
+        </ul>
+    </div>
+
+    <!-- Current Period -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h3 class="text-lg font-medium text-gray-900">Current Assessment Period</h3>
+                <p class="text-sm text-gray-600 mt-1">
+                    {{ current_period.period_start.strftime('%d %B %Y') }} - {{ current_period.period_end.strftime('%d %B %Y') }}
+                </p>
+            </div>
+            {% if current_period.reported_at %}
+            <span class="px-3 py-1 text-sm rounded bg-green-100 text-green-800">
+                Reported {{ current_period.reported_at.strftime('%d %b') }}
+            </span>
+            {% else %}
+            <span class="px-3 py-1 text-sm rounded bg-yellow-100 text-yellow-800">
+                Not Reported
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 mb-6">
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Income</div>
+                <div class="text-2xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(current_period.total_income) }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Expenses</div>
+                <div class="text-2xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(current_period.total_expenses) }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Net Profit</div>
+                <div class="text-2xl font-semibold text-gray-900 amount">£{{ "%.2f"|format(current_period.net_profit) }}</div>
+            </div>
+        </div>
+
+        {% if not current_period.reported_at %}
+        <div class="border-t border-gray-200 pt-4">
+            <p class="text-sm text-gray-600 mb-4">
+                After reporting these figures to Universal Credit, mark this period as reported:
+            </p>
+            <form method="POST" action="/uc/mark-reported" class="flex gap-4">
+                <input 
+                    type="hidden" 
+                    name="period_start" 
+                    value="{{ current_period.period_start.isoformat() }}"
+                >
+                <input 
+                    type="date" 
+                    name="reported_at" 
+                    value="{{ today }}"
+                    required
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <button 
+                    type="submit"
+                    class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                >
+                    Mark as Reported
+                </button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Previous Periods -->
+    <div class="bg-white rounded-lg border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Previous Periods</h3>
+        </div>
+
+        {% if previous_periods %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Income</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Expenses</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Net Profit</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for period in previous_periods %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ period.period_start.strftime('%d %b') }} - {{ period.period_end.strftime('%d %b %Y') }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right amount">
+                            £{{ "%.2f"|format(period.total_income) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right amount">
+                            £{{ "%.2f"|format(period.total_expenses) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right amount">
+                            £{{ "%.2f"|format(period.net_profit) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            {% if period.reported_at %}
+                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-800">
+                                Reported
+                            </span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs rounded bg-gray-100 text-gray-600">
+                                Not Reported
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="p-6 text-center text-gray-600">
+            <p>No previous periods recorded yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Important Notes -->
+    <div class="mt-8 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <h4 class="font-medium text-gray-900 mb-2">Important</h4>
+        <ul class="text-sm text-gray-600 space-y-1 list-disc list-inside">
+            <li>These figures are for your records only</li>
+            <li>You must report to Universal Credit separately via your UC account</li>
+            <li>This app does not communicate with Universal Credit</li>
+            <li>Keep records of when you report each period</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
