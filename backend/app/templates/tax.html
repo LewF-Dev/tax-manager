@@ -98,19 +98,40 @@
 
     <!-- Tax Savings Status -->
     <div class="bg-gradient-to-br from-green-50 to-white dark:from-green-900 dark:to-gray-800 rounded-lg border border-green-200 dark:border-green-700 p-6 mb-8 card-hover">
-        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Your Tax Savings</h3>
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white">Your Tax Savings</h3>
+            <button onclick="document.getElementById('add-savings-modal').classList.remove('hidden')" class="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                + Record Savings
+            </button>
+        </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
             <div>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Actually Saved</p>
-                <div class="text-3xl font-bold {% if tax_summary.actual_tax_saved >= tax_summary.total_tax %}text-green-600 dark:text-green-400{% elif tax_summary.actual_tax_saved >= tax_summary.tax_to_set_aside %}text-yellow-600 dark:text-yellow-400{% else %}text-orange-600 dark:text-orange-400{% endif %} amount">
+                <div class="text-3xl font-bold {% if tax_summary.actual_tax_saved >= tax_summary.total_tax %}text-green-600 dark:text-green-400{% else %}text-orange-600 dark:text-orange-400{% endif %} amount">
                     £{{ "%.2f"|format(tax_summary.actual_tax_saved) }}
                 </div>
             </div>
             <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">Should Have Saved ({{ user.tax_set_aside_percentage }}%)</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    Need to Save
+                    <span class="info-tooltip cursor-help">
+                        <svg class="w-4 h-4 inline-block text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span class="tooltip-content">Your actual tax bill based on your profit and current tax rates.</span>
+                    </span>
+                </p>
                 <div class="text-3xl font-bold text-gray-700 dark:text-gray-300 amount">
-                    £{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}
+                    £{{ "%.2f"|format(tax_summary.total_tax) }}
+                </div>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                    Still to Save
+                </p>
+                <div class="text-3xl font-bold {% if tax_summary.total_tax - tax_summary.actual_tax_saved <= 0 %}text-green-600 dark:text-green-400{% else %}text-red-600 dark:text-red-400{% endif %} amount">
+                    £{{ "%.2f"|format(max(0, tax_summary.total_tax - tax_summary.actual_tax_saved)) }}
                 </div>
             </div>
         </div>
@@ -118,21 +139,81 @@
         <div class="pt-4 border-t border-green-200 dark:border-green-700">
             {% if tax_summary.actual_tax_saved == 0 %}
             <p class="text-sm text-orange-700 dark:text-orange-300">
-                ⚠️ You haven't recorded any tax savings yet. Update your income entries to track what you've saved.
+                ⚠️ You haven't recorded any tax savings yet. Click "+ Record Savings" above or update your income entries.
             </p>
             {% elif tax_summary.actual_tax_saved >= tax_summary.total_tax %}
             <p class="text-sm text-green-700 dark:text-green-300">
-                ✅ Great! You've saved enough to cover your estimated tax bill (£{{ "%.2f"|format(tax_summary.total_tax) }}).
-            </p>
-            {% elif tax_summary.actual_tax_saved >= tax_summary.tax_to_set_aside %}
-            <p class="text-sm text-green-700 dark:text-green-300">
-                ✅ You're on track with your {{ user.tax_set_aside_percentage }}% savings goal.
+                ✅ Excellent! You've saved enough to cover your estimated tax bill.
             </p>
             {% else %}
             <p class="text-sm text-orange-700 dark:text-orange-300">
-                ⚠️ You're £{{ "%.2f"|format(tax_summary.tax_to_set_aside - tax_summary.actual_tax_saved) }} behind your savings goal. Try to catch up with your next payments.
+                ⚠️ You need to save £{{ "%.2f"|format(tax_summary.total_tax - tax_summary.actual_tax_saved) }} more to cover your tax bill.
             </p>
             {% endif %}
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                Tip: Your current {{ user.tax_set_aside_percentage }}% rate would give you £{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}. 
+                {% if tax_summary.tax_to_set_aside < tax_summary.total_tax %}
+                Consider increasing to {{ recommended_percentage }}% to cover your actual tax.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Add Savings Modal -->
+    <div id="add-savings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Record Tax Savings</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                Record money you've transferred to savings for tax. This will be added to your total savings.
+            </p>
+            <form action="/tax/add-savings" method="POST">
+                <div class="mb-4">
+                    <label for="savings-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Amount Saved (£)
+                    </label>
+                    <input 
+                        type="number" 
+                        id="savings-amount" 
+                        name="amount" 
+                        step="0.01" 
+                        min="0.01"
+                        required
+                        placeholder="0.00"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 amount"
+                    >
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        You still need: £{{ "%.2f"|format(max(0, tax_summary.total_tax - tax_summary.actual_tax_saved)) }}
+                    </p>
+                </div>
+                <div class="mb-4">
+                    <label for="savings-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Date Saved
+                    </label>
+                    <input 
+                        type="date" 
+                        id="savings-date" 
+                        name="date_saved" 
+                        value="{{ today }}"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                <div class="flex gap-3">
+                    <button 
+                        type="button"
+                        onclick="document.getElementById('add-savings-modal').classList.add('hidden')"
+                        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        class="flex-1 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -58,22 +58,22 @@
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                         </svg>
-                        <span class="tooltip-content">Track how much you've actually saved for tax vs how much you should have saved based on your {{ user.tax_set_aside_percentage }}% rate.</span>
+                        <span class="tooltip-content">How much you've actually saved vs your estimated tax bill.</span>
                     </span>
                 </div>
                 <div class="flex items-baseline gap-2 mb-2">
-                    <div class="text-4xl font-bold {% if tax_summary.actual_tax_saved >= tax_summary.tax_to_set_aside %}text-green-600 dark:text-green-400{% else %}text-orange-600 dark:text-orange-400{% endif %} amount">
+                    <div class="text-4xl font-bold {% if tax_summary.actual_tax_saved >= tax_summary.total_tax %}text-green-600 dark:text-green-400{% else %}text-orange-600 dark:text-orange-400{% endif %} amount">
                         £{{ "%.2f"|format(tax_summary.actual_tax_saved) }}
                     </div>
-                    <div class="text-lg text-gray-500 dark:text-gray-400">/ £{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}</div>
+                    <div class="text-lg text-gray-500 dark:text-gray-400">/ £{{ "%.2f"|format(tax_summary.total_tax) }}</div>
                 </div>
                 <div class="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                    {% if tax_summary.actual_tax_saved >= tax_summary.tax_to_set_aside %}
-                    ✅ On track with savings
+                    {% if tax_summary.actual_tax_saved >= tax_summary.total_tax %}
+                    ✅ Tax bill covered
                     {% elif tax_summary.actual_tax_saved == 0 %}
                     ⚠️ No savings recorded yet
                     {% else %}
-                    ⚠️ £{{ "%.2f"|format(tax_summary.tax_to_set_aside - tax_summary.actual_tax_saved) }} behind goal
+                    ⚠️ Need £{{ "%.2f"|format(tax_summary.total_tax - tax_summary.actual_tax_saved) }} more
                     {% endif %}
                 </div>
             </div>

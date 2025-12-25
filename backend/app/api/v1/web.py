@@ -291,6 +291,8 @@ async def tax_page(
     db: Session = Depends(get_db),
 ):
     """Tax summary page."""
+    from app.core.tax_calc import recommend_tax_set_aside_percentage
+    
     tax_summary = await get_tax_summary_data(current_user, db)
     
     days_until_hmrc_deadline = None
@@ -298,13 +300,62 @@ async def tax_page(
         deadline = get_hmrc_registration_deadline(current_user.trading_start_date)
         days_until_hmrc_deadline = (deadline - date.today()).days
     
+    # Get recommendation
+    recommendation = recommend_tax_set_aside_percentage(
+        Decimal(str(tax_summary.net_profit)),
+        date.today()
+    )
+    
     return templates.TemplateResponse("tax.html", {
         "request": request,
         "user": current_user,
         "active_page": "tax",
         "tax_summary": tax_summary,
         "days_until_hmrc_deadline": days_until_hmrc_deadline,
+        "recommended_percentage": recommendation["recommended_percentage"],
+        "today": date.today().isoformat(),
     })
+
+
+@router.post("/tax/add-savings")
+async def add_tax_savings(
+    amount: Decimal = Form(...),
+    date_saved: date = Form(...),
+    current_user: User = Depends(get_current_active_subscriber),
+    db: Session = Depends(get_db),
+):
+    """Record a standalone tax savings transfer."""
+    from app.core.tax_rulesets import get_ruleset_for_date
+    
+    # Create a zero-amount income entry just to track the savings
+    tax_year = get_tax_year(date_saved)
+    ruleset = get_ruleset_for_date(date_saved)
+    
+    # Find the most recent income to attach this to, or create a placeholder
+    recent_income = db.query(Income).filter(
+        Income.user_id == current_user.id,
+        Income.tax_saved.is_(None)  # Find one without savings recorded
+    ).order_by(Income.date_received.desc()).first()
+    
+    if recent_income:
+        # Attach to existing income
+        recent_income.tax_saved = (recent_income.tax_saved or Decimal("0")) + amount
+        db.commit()
+    else:
+        # Create a placeholder "savings transfer" entry
+        income = Income(
+            user_id=current_user.id,
+            date_received=date_saved,
+            amount=Decimal("0"),
+            description="Tax Savings Transfer",
+            tax_saved=amount,
+            tax_year=tax_year,
+            tax_ruleset_version=ruleset["version"],
+        )
+        db.add(income)
+        db.commit()
+    
+    return RedirectResponse(url="/tax", status_code=303)
 
 
 @router.get("/uc", response_class=HTMLResponse)
