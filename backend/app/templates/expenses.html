@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Expenses</h2>
+    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Expenses</h2>
 
     <!-- Add Expense Form -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8 card-hover">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Expense</h3>
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-8 card-hover">
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Add Expense</h3>
         <form method="POST" action="/expenses/add" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -75,12 +75,12 @@
     </div>
 
     <!-- Expense List -->
-    <div class="bg-white rounded-lg border border-gray-200 card-hover">
-        <div class="p-6 border-b border-gray-200">
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 card-hover">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700">
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">Expense History</h3>
-                <div class="text-sm text-gray-600">
-                    Total: <span class="font-medium text-green-600 amount">£{{ "%.2f"|format(total_expenses) }}</span>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Expense History</h3>
+                <div class="text-sm text-gray-600 dark:text-gray-400">
+                    Total: <span class="font-medium text-green-600 dark:text-green-400 amount">£{{ "%.2f"|format(total_expenses) }}</span>
                 </div>
             </div>
         </div>

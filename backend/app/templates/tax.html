@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Your Tax</h2>
+    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Your Tax</h2>
 
     <!-- Tax Year Info -->
-    <div class="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-4 mb-8">
-        <p class="text-sm text-blue-900">
+    <div class="bg-blue-50 dark:bg-blue-900 border-l-4 border-blue-400 dark:border-blue-600 rounded-lg p-4 mb-8">
+        <p class="text-sm text-blue-900 dark:text-blue-100">
             <strong>{{ tax_summary.tax_year }} Tax Year</strong> runs from {{ tax_summary.tax_year_start.strftime('%d %B %Y') }} to {{ tax_summary.tax_year_end.strftime('%d %B %Y') }}.
             These are estimates based on current HMRC rules.
         </p>
@@ -17,30 +17,30 @@
     <!-- Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <!-- Income & Expenses -->
-        <div class="bg-gradient-to-br from-blue-50 to-white rounded-lg border border-blue-200 p-6 card-hover">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Your Money</h3>
+        <div class="bg-gradient-to-br from-blue-50 to-white dark:from-blue-900 dark:to-gray-800 rounded-lg border border-blue-200 dark:border-blue-700 p-6 card-hover">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Your Money</h3>
             <div class="space-y-3">
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Money In</span>
-                    <span class="font-medium text-blue-600 amount">£{{ "%.2f"|format(tax_summary.total_income) }}</span>
+                    <span class="text-gray-600 dark:text-gray-400">Money In</span>
+                    <span class="font-medium text-blue-600 dark:text-blue-400 amount">£{{ "%.2f"|format(tax_summary.total_income) }}</span>
                 </div>
                 <div class="flex justify-between text-sm">
-                    <span class="text-gray-600">Expenses</span>
-                    <span class="font-medium text-green-600 amount">£{{ "%.2f"|format(tax_summary.total_expenses) }}</span>
+                    <span class="text-gray-600 dark:text-gray-400">Expenses</span>
+                    <span class="font-medium text-green-600 dark:text-green-400 amount">£{{ "%.2f"|format(tax_summary.total_expenses) }}</span>
                 </div>
-                <div class="pt-3 border-t border-gray-200">
+                <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <div class="flex justify-between">
-                        <span class="font-medium text-gray-900">What You Keep</span>
-                        <span class="font-semibold text-gray-900 amount">£{{ "%.2f"|format(tax_summary.net_profit) }}</span>
+                        <span class="font-medium text-gray-900 dark:text-white">What You Keep</span>
+                        <span class="font-semibold text-gray-900 dark:text-white amount">£{{ "%.2f"|format(tax_summary.net_profit) }}</span>
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Before tax</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Before tax</p>
                 </div>
             </div>
         </div>
 
         <!-- Tax Breakdown -->
-        <div class="bg-gradient-to-br from-yellow-50 to-white rounded-lg border border-yellow-200 p-6 card-hover">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">Tax Bill Estimate</h3>
+        <div class="bg-gradient-to-br from-yellow-50 to-white dark:from-yellow-900 dark:to-gray-800 rounded-lg border border-yellow-200 dark:border-yellow-700 p-6 card-hover">
+            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Tax Bill Estimate</h3>
             <div class="space-y-3">
                 <div class="flex justify-between text-sm">
                     <span class="text-gray-600">Income Tax</span>
@@ -65,17 +65,17 @@
     </div>
 
     <!-- Tax to Set Aside -->
-    <div class="bg-gradient-to-br from-green-50 to-white rounded-lg border border-green-200 p-6 mb-8 card-hover">
+    <div class="bg-gradient-to-br from-green-50 to-white dark:from-green-900 dark:to-gray-800 rounded-lg border border-green-200 dark:border-green-700 p-6 mb-8 card-hover">
         <div class="flex justify-between items-start mb-4">
             <div>
-                <h3 class="text-lg font-medium text-gray-900">Money Saved for Tax</h3>
-                <p class="text-sm text-gray-600 mt-1">You're saving {{ user.tax_set_aside_percentage }}% of what you earn</p>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">Money Saved for Tax</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">You're saving {{ user.tax_set_aside_percentage }}% of what you earn</p>
             </div>
             <div class="text-right">
-                <div class="text-3xl font-semibold text-green-700 amount">£{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}</div>
+                <div class="text-3xl font-semibold text-green-700 dark:text-green-400 amount">£{{ "%.2f"|format(tax_summary.tax_to_set_aside) }}</div>
             </div>
         </div>
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
             {% if tax_summary.tax_to_set_aside > tax_summary.total_tax %}
             ✅ You're saving more than your estimated tax bill. This gives you a safety buffer.
             {% elif tax_summary.tax_to_set_aside < tax_summary.total_tax %}
