@@ -170,3 +170,62 @@ def calculate_tax_to_set_aside(
     percentage = Decimal(str(set_aside_percentage)) / 100
     
     return (amount * percentage).quantize(Decimal("0.01"))
+
+
+def recommend_tax_set_aside_percentage(
+    projected_annual_profit: Decimal,
+    transaction_date: date
+) -> Dict[str, Any]:
+    """
+    Recommend a tax set-aside percentage based on projected annual profit.
+    
+    Calculates the effective tax rate and adds a buffer for safety.
+    
+    Args:
+        projected_annual_profit: Estimated annual profit
+        transaction_date: Date to determine tax year/ruleset
+        
+    Returns:
+        Dictionary with recommended percentage and reasoning
+    """
+    if projected_annual_profit <= 0:
+        return {
+            "recommended_percentage": 20,
+            "reason": "Default recommendation",
+            "is_sufficient": True
+        }
+    
+    # Calculate actual tax on projected profit
+    tax_breakdown = calculate_total_tax(projected_annual_profit, transaction_date)
+    total_tax = Decimal(str(tax_breakdown["total_tax"]))
+    
+    # Calculate effective tax rate
+    effective_rate = (total_tax / projected_annual_profit * 100) if projected_annual_profit > 0 else Decimal("0")
+    
+    # Add 5% buffer for safety and round up to nearest 5%
+    recommended = int((effective_rate + 5).quantize(Decimal("1")))
+    recommended = ((recommended + 4) // 5) * 5  # Round up to nearest 5
+    
+    # Minimum 15%, maximum 50%
+    recommended = max(15, min(50, recommended))
+    
+    # Determine reason based on profit thresholds
+    profit_float = float(projected_annual_profit)
+    
+    if profit_float < 12570:
+        reason = "Below Personal Allowance - minimal tax expected"
+    elif profit_float < 25000:
+        reason = "Basic rate taxpayer - 20% Income Tax + NI"
+    elif profit_float < 50270:
+        reason = "Higher basic rate income - increased NI contributions"
+    elif profit_float < 100000:
+        reason = "Higher rate taxpayer - 40% Income Tax on earnings over £50,270"
+    else:
+        reason = "High earner - 40%+ tax rates apply"
+    
+    return {
+        "recommended_percentage": recommended,
+        "effective_tax_rate": float(effective_rate.quantize(Decimal("0.1"))),
+        "reason": reason,
+        "is_sufficient": True
+    }

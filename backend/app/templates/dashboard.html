@@ -122,6 +122,21 @@
     <div class="mb-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Next Actions</h2>
         <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 divide-y divide-gray-200 dark:divide-gray-700 shadow-md">
+            {% if recommended_percentage > user.tax_set_aside_percentage %}
+            <div class="p-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <span class="inline-block w-2 h-2 mt-2 bg-orange-500 rounded-full"></span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-gray-900 dark:text-gray-100">Consider increasing your tax savings to {{ recommended_percentage }}%</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ recommendation_reason }}</p>
+                        <a href="/settings" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">Update in Settings →</a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
             {% if not user.trading_start_date %}
             <div class="p-4">
                 <div class="flex items-start">
@@ -129,8 +144,8 @@
                         <span class="inline-block w-2 h-2 mt-2 bg-blue-500 rounded-full"></span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm text-gray-900">Set your trading start date</p>
-                        <a href="/settings" class="text-sm text-blue-600 hover:text-blue-700">Go to Settings →</a>
+                        <p class="text-sm text-gray-900 dark:text-gray-100">Set your trading start date</p>
+                        <a href="/settings" class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">Go to Settings →</a>
                     </div>
                 </div>
             </div>

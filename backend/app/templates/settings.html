@@ -86,13 +86,27 @@
                         max="100"
                         step="1"
                         required
-                        class="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-32 px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                    <span class="text-gray-600">%</span>
+                    <span class="text-gray-600 dark:text-gray-400">%</span>
+                    {% if recommended_percentage and recommended_percentage != user.tax_set_aside_percentage %}
+                    <button 
+                        type="button"
+                        onclick="document.getElementById('tax_set_aside_percentage').value = {{ recommended_percentage }}"
+                        class="px-3 py-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
+                    >
+                        Use {{ recommended_percentage }}%
+                    </button>
+                    {% endif %}
                 </div>
-                <p class="text-xs text-gray-500 mt-1">
-                    We recommend 20% for most people. If you earn more, consider 25-30%.
-                </p>
+                {% if recommended_percentage %}
+                <div class="mt-2 p-3 bg-blue-50 dark:bg-blue-900 rounded-md">
+                    <p class="text-xs text-blue-900 dark:text-blue-100">
+                        <strong>💡 Recommended: {{ recommended_percentage }}%</strong>
+                        <span class="block mt-1">{{ recommendation_reason }}</span>
+                    </p>
+                </div>
+                {% endif %}
             </div>
             <button 
                 type="submit"

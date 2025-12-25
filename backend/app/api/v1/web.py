@@ -61,13 +61,21 @@ async def dashboard(
         )
     ).count()
     
+    # Calculate recommended tax percentage
+    from app.core.tax_calc import recommend_tax_set_aside_percentage
+    recommendation = recommend_tax_set_aside_percentage(
+        Decimal(str(tax_summary.net_profit)),
+        date.today()
+    )
+    
     # Check if any next actions exist
     next_actions_exist = (
         not current_user.trading_start_date or
         (current_user.uc_enabled and uc_period and not uc_period.reported_at) or
         (days_until_hmrc_deadline and days_until_hmrc_deadline < 90) or
         (tax_summary.vat_threshold_proximity > 80) or
-        recent_income_count == 0
+        recent_income_count == 0 or
+        (recommendation["recommended_percentage"] > current_user.tax_set_aside_percentage)
     )
     
     return templates.TemplateResponse("dashboard.html", {
@@ -78,6 +86,8 @@ async def dashboard(
         "uc_period": uc_period,
         "days_until_hmrc_deadline": days_until_hmrc_deadline,
         "recent_income_count": recent_income_count,
+        "recommended_percentage": recommendation["recommended_percentage"],
+        "recommendation_reason": recommendation["reason"],
         "next_actions_exist": next_actions_exist,
     })
 
@@ -85,6 +95,8 @@ async def dashboard(
 @router.get("/income", response_class=HTMLResponse)
 async def income_page(
     request: Request,
+    added_amount: float = None,
+    save_amount: float = None,
     current_user: User = Depends(get_current_active_subscriber),
     db: Session = Depends(get_db),
 ):
@@ -96,6 +108,18 @@ async def income_page(
     total_income = sum((i.amount for i in incomes), Decimal("0.00"))
     last_income_amount = incomes[0].amount if incomes else None
     
+    # Calculate recommended tax percentage based on current year's profit
+    from app.core.tax_calc import recommend_tax_set_aside_percentage
+    total_expenses = db.query(func.sum(Expense.amount)).filter(
+        Expense.user_id == current_user.id
+    ).scalar() or Decimal("0.00")
+    
+    projected_profit = total_income - total_expenses
+    recommendation = recommend_tax_set_aside_percentage(
+        projected_profit,
+        date.today()
+    )
+    
     return templates.TemplateResponse("income.html", {
         "request": request,
         "user": current_user,
@@ -104,6 +128,10 @@ async def income_page(
         "total_income": total_income,
         "last_income_amount": last_income_amount,
         "today": date.today().isoformat(),
+        "added_amount": added_amount,
+        "save_amount": save_amount,
+        "recommended_percentage": recommendation["recommended_percentage"],
+        "recommendation_reason": recommendation["reason"],
     })
 
 
@@ -133,7 +161,16 @@ async def add_income(
     db.add(income)
     db.commit()
     
-    return RedirectResponse(url="/income", status_code=303)
+    # Calculate amount to save for this payment
+    amount_to_save = calculate_tax_to_set_aside(
+        amount,
+        Decimal(str(current_user.tax_set_aside_percentage))
+    )
+    
+    return RedirectResponse(
+        url=f"/income?added_amount={float(amount)}&save_amount={float(amount_to_save)}",
+        status_code=303
+    )
 
 
 @router.post("/income/delete/{income_id}")
@@ -335,12 +372,32 @@ async def mark_uc_reported(
 async def settings_page(
     request: Request,
     current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     """Settings page."""
+    # Calculate recommended tax percentage
+    from app.core.tax_calc import recommend_tax_set_aside_percentage
+    
+    total_income = db.query(func.sum(Income.amount)).filter(
+        Income.user_id == current_user.id
+    ).scalar() or Decimal("0.00")
+    
+    total_expenses = db.query(func.sum(Expense.amount)).filter(
+        Expense.user_id == current_user.id
+    ).scalar() or Decimal("0.00")
+    
+    projected_profit = total_income - total_expenses
+    recommendation = recommend_tax_set_aside_percentage(
+        projected_profit,
+        date.today()
+    )
+    
     return templates.TemplateResponse("settings.html", {
         "request": request,
         "user": current_user,
         "active_page": "settings",
+        "recommended_percentage": recommendation["recommended_percentage"],
+        "recommendation_reason": recommendation["reason"],
     })
 
 
