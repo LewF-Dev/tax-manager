@@ -61,7 +61,13 @@
     <!-- Tax Set Aside Reminder -->
     <div class="bg-yellow-50 dark:bg-yellow-900 border-l-4 border-yellow-400 dark:border-yellow-600 rounded-lg p-4 mb-8">
         <p class="text-sm text-yellow-900 dark:text-yellow-100">
-            <strong>💡 Tip:</strong> Put {{ user.tax_set_aside_percentage }}% of each payment into savings for tax.
+            <strong>💡 Tip:</strong> Put {{ user.tax_set_aside_percentage }}% of each payment into savings for tax
+            <span class="info-tooltip cursor-help">
+                <svg class="w-4 h-4 inline-block text-yellow-700 dark:text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                <span class="tooltip-content">When you're self-employed, tax isn't taken automatically. Setting aside a percentage of each payment helps you build up savings to pay your tax bill when it's due in January.</span>
+            </span>.
             {% if last_income_amount %}
             For your last payment of £{{ "%.2f"|format(last_income_amount) }}, save £{{ "%.2f"|format(last_income_amount * user.tax_set_aside_percentage / 100) }}.
             {% endif %}

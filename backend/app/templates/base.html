@@ -162,6 +162,64 @@
         nav a:nth-child(4) { animation-delay: 0.2s; }
         nav a:nth-child(5) { animation-delay: 0.25s; }
         nav a:nth-child(6) { animation-delay: 0.3s; }
+        
+        /* Info tooltip styles */
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .info-tooltip .tooltip-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            width: 250px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+        }
+        
+        .info-tooltip .tooltip-content::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1f2937 transparent transparent transparent;
+        }
+        
+        .info-tooltip:hover .tooltip-content,
+        .info-tooltip.active .tooltip-content {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Mobile: show tooltip below on small screens */
+        @media (max-width: 640px) {
+            .info-tooltip .tooltip-content {
+                bottom: auto;
+                top: 125%;
+                width: 200px;
+            }
+            
+            .info-tooltip .tooltip-content::after {
+                top: auto;
+                bottom: 100%;
+                border-color: transparent transparent #1f2937 transparent;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-colors">
@@ -276,6 +334,37 @@
             if (!menu.contains(event.target) && !btn.contains(event.target)) {
                 menu.classList.add('hidden');
             }
+        });
+        
+        // Info tooltip handling for mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const infoIcons = document.querySelectorAll('.info-tooltip');
+            
+            infoIcons.forEach(function(icon) {
+                icon.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Close all other tooltips
+                    infoIcons.forEach(function(otherIcon) {
+                        if (otherIcon !== icon) {
+                            otherIcon.classList.remove('active');
+                        }
+                    });
+                    
+                    // Toggle this tooltip
+                    icon.classList.toggle('active');
+                });
+            });
+            
+            // Close tooltips when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.info-tooltip')) {
+                    infoIcons.forEach(function(icon) {
+                        icon.classList.remove('active');
+                    });
+                }
+            });
         });
     </script>
 
