@@ -140,6 +140,7 @@ async def add_income(
     date_received: date = Form(...),
     amount: Decimal = Form(...),
     description: str = Form(...),
+    tax_saved: Decimal = Form(None),
     current_user: User = Depends(get_current_active_subscriber),
     db: Session = Depends(get_db),
 ):
@@ -154,6 +155,7 @@ async def add_income(
         date_received=date_received,
         amount=amount,
         description=description,
+        tax_saved=tax_saved if tax_saved and tax_saved > 0 else None,
         tax_year=tax_year,
         tax_ruleset_version=ruleset["version"],
     )
@@ -171,6 +173,26 @@ async def add_income(
         url=f"/income?added_amount={float(amount)}&save_amount={float(amount_to_save)}",
         status_code=303
     )
+
+
+@router.post("/income/update-savings/{income_id}")
+async def update_income_savings(
+    income_id: str,
+    tax_saved: Decimal = Form(...),
+    current_user: User = Depends(get_current_active_subscriber),
+    db: Session = Depends(get_db),
+):
+    """Update tax saved amount for an income transaction."""
+    income = db.query(Income).filter(
+        Income.id == income_id,
+        Income.user_id == current_user.id,
+    ).first()
+    
+    if income:
+        income.tax_saved = tax_saved if tax_saved > 0 else None
+        db.commit()
+    
+    return RedirectResponse(url="/income", status_code=303)
 
 
 @router.post("/income/delete/{income_id}")

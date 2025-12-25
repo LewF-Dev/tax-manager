@@ -18,7 +18,8 @@ class TaxSummary(BaseModel):
     ni_class2: Decimal
     ni_class4: Decimal
     total_tax: Decimal
-    tax_to_set_aside: Decimal
+    tax_to_set_aside: Decimal  # Recommended amount based on percentage
+    actual_tax_saved: Decimal  # Actual amount user has saved
     hmrc_registration_deadline: date
     vat_threshold_proximity: Decimal  # Percentage towards VAT threshold
 

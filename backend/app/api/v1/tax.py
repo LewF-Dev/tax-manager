@@ -56,11 +56,14 @@ async def get_tax_summary(
     total_expenses = sum((e.amount for e in expenses), Decimal("0.00"))
     net_profit = total_income - total_expenses
     
+    # Calculate actual tax saved
+    actual_tax_saved = sum((i.tax_saved for i in incomes if i.tax_saved), Decimal("0.00"))
+    
     # Calculate tax using first transaction date or tax year start
     calc_date = incomes[0].date_received if incomes else tax_year_start
     tax_breakdown = calculate_total_tax(net_profit, calc_date)
     
-    # Calculate tax to set aside based on user's percentage
+    # Calculate tax to set aside based on user's percentage (recommended)
     tax_to_set_aside = calculate_tax_to_set_aside(
         total_income,
         current_user.tax_set_aside_percentage,
@@ -88,6 +91,7 @@ async def get_tax_summary(
         ni_class4=Decimal(str(tax_breakdown["ni_class4"])),
         total_tax=Decimal(str(tax_breakdown["total_tax"])),
         tax_to_set_aside=tax_to_set_aside,
+        actual_tax_saved=actual_tax_saved,
         hmrc_registration_deadline=hmrc_deadline,
         vat_threshold_proximity=vat_proximity,
     )

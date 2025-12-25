@@ -18,6 +18,9 @@ class Income(Base, TimestampMixin):
     amount = Column(Numeric(10, 2), nullable=False)
     description = Column(String, nullable=False)
     
+    # Tax savings tracking
+    tax_saved = Column(Numeric(10, 2), nullable=True, default=None)  # Actual amount saved for tax
+    
     # Tax calculation metadata
     tax_year = Column(String(7), nullable=False, index=True)  # e.g., "2024-25"
     tax_ruleset_version = Column(String, nullable=False)  # Tracks which ruleset was used

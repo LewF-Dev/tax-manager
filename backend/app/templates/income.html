@@ -37,18 +37,18 @@
         <form method="POST" action="/income/add" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label for="date_received" class="block text-sm font-medium text-gray-700 mb-1">Date Received</label>
+                    <label for="date_received" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Date Received</label>
                     <input 
                         type="date" 
                         id="date_received" 
                         name="date_received" 
                         value="{{ today }}"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                 </div>
                 <div>
-                    <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">Amount (£)</label>
+                    <label for="amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Amount (£)</label>
                     <input 
                         type="number" 
                         id="amount" 
@@ -57,10 +57,45 @@
                         min="0.01"
                         required
                         placeholder="0.00"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 amount"
+                        onchange="updateRecommendedSavings()"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 amount"
                     >
                 </div>
-                <div class="md:col-span-1 flex items-end">
+                <div>
+                    <label for="tax_saved" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center gap-1">
+                        Amount Saved (£)
+                        <span class="info-tooltip cursor-help">
+                            <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="tooltip-content">Optional: Enter the amount you actually transferred to savings for tax. Leave blank if you haven't saved yet.</span>
+                        </span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="tax_saved" 
+                        name="tax_saved" 
+                        step="0.01" 
+                        min="0"
+                        placeholder="0.00"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 amount"
+                    >
+                    <p id="recommended-savings" class="text-xs text-gray-500 dark:text-gray-400 mt-1"></p>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-3">
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+                    <input 
+                        type="text" 
+                        id="description" 
+                        name="description" 
+                        required
+                        placeholder="e.g., Website development project"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                </div>
+                <div class="flex items-end">
                     <button 
                         type="submit"
                         class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
@@ -69,18 +104,21 @@
                     </button>
                 </div>
             </div>
-            <div>
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <input 
-                    type="text" 
-                    id="description" 
-                    name="description" 
-                    required
-                    placeholder="e.g., Website development project"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-            </div>
         </form>
+        
+        <script>
+            function updateRecommendedSavings() {
+                const amount = parseFloat(document.getElementById('amount').value) || 0;
+                const percentage = {{ user.tax_set_aside_percentage }};
+                const recommended = (amount * percentage / 100).toFixed(2);
+                const display = document.getElementById('recommended-savings');
+                if (amount > 0) {
+                    display.textContent = `Recommended: £${recommended} (${percentage}%)`;
+                } else {
+                    display.textContent = '';
+                }
+            }
+        </script>
     </div>
 
     <!-- Tax Set Aside Reminder -->
@@ -132,12 +170,23 @@
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             <span class="flex items-center justify-end gap-1">
-                                Save for Tax
+                                Should Save
                                 <span class="info-tooltip cursor-help">
                                     <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span class="tooltip-content">Amount you should save from this payment based on your {{ user.tax_set_aside_percentage }}% tax savings rate.</span>
+                                    <span class="tooltip-content">Recommended amount to save based on your {{ user.tax_set_aside_percentage }}% rate.</span>
+                                </span>
+                            </span>
+                        </th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                            <span class="flex items-center justify-end gap-1">
+                                Actually Saved
+                                <span class="info-tooltip cursor-help">
+                                    <svg class="w-4 h-4 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="tooltip-content">Amount you've actually transferred to savings. Click to update.</span>
                                 </span>
                             </span>
                         </th>
@@ -157,8 +206,20 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 text-right amount">
                             £{{ "%.2f"|format(income.amount) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-700 dark:text-yellow-400 text-right font-semibold amount">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 text-right amount">
                             £{{ "%.2f"|format(income.amount * user.tax_set_aside_percentage / 100) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                            {% if income.tax_saved %}
+                            <span class="{% if income.tax_saved >= (income.amount * user.tax_set_aside_percentage / 100) %}text-green-600 dark:text-green-400{% else %}text-orange-600 dark:text-orange-400{% endif %} font-semibold amount">
+                                £{{ "%.2f"|format(income.tax_saved) }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400 dark:text-gray-500 text-xs">Not saved</span>
+                            {% endif %}
+                            <button onclick="editSavings('{{ income.id }}', {{ income.amount }}, {{ income.tax_saved or 0 }})" class="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-xs">
+                                Edit
+                            </button>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400 text-center">
                             {{ income.tax_year }}
@@ -180,5 +241,79 @@
         </div>
         {% endif %}
     </div>
+    
+    <!-- Edit Savings Modal -->
+    <div id="edit-savings-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Update Tax Savings</h3>
+            <form id="edit-savings-form" method="POST">
+                <div class="mb-4">
+                    <label for="edit-tax-saved" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Amount Saved (£)
+                    </label>
+                    <input 
+                        type="number" 
+                        id="edit-tax-saved" 
+                        name="tax_saved" 
+                        step="0.01" 
+                        min="0"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 amount"
+                    >
+                    <p id="edit-recommended" class="text-xs text-gray-500 dark:text-gray-400 mt-1"></p>
+                </div>
+                <div class="flex gap-3">
+                    <button 
+                        type="button"
+                        onclick="closeEditModal()"
+                        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit"
+                        class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        function editSavings(incomeId, amount, currentSaved) {
+            const modal = document.getElementById('edit-savings-modal');
+            const form = document.getElementById('edit-savings-form');
+            const input = document.getElementById('edit-tax-saved');
+            const recommended = document.getElementById('edit-recommended');
+            
+            const recommendedAmount = (amount * {{ user.tax_set_aside_percentage }} / 100).toFixed(2);
+            
+            form.action = `/income/update-savings/${incomeId}`;
+            input.value = currentSaved > 0 ? currentSaved.toFixed(2) : recommendedAmount;
+            recommended.textContent = `Recommended: £${recommendedAmount} ({{ user.tax_set_aside_percentage }}%)`;
+            
+            modal.classList.remove('hidden');
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-savings-modal').classList.add('hidden');
+        }
+        
+        // Close modal on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeEditModal();
+            }
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('edit-savings-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+    </script>
 </div>
 {% endblock %}
