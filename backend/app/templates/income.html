@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Income - Tax Manager{% endblock %}
+{% block title %}Money In - Tax Manager{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl">
-    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Income</h2>
+    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Money In</h2>
 
     <!-- Add Income Form -->
-    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Income</h3>
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8 card-hover">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Add Money In</h3>
         <form method="POST" action="/income/add" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -38,9 +38,9 @@
                 <div class="md:col-span-1 flex items-end">
                     <button 
                         type="submit"
-                        class="w-full px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                        class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                     >
-                        Add Income
+                        Add Money In
                     </button>
                 </div>
             </div>
@@ -59,22 +59,22 @@
     </div>
 
     <!-- Tax Set Aside Reminder -->
-    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-        <p class="text-sm text-blue-900">
-            <strong>Remember:</strong> Set aside {{ user.tax_set_aside_percentage }}% of each payment for tax.
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-4 mb-8">
+        <p class="text-sm text-yellow-900">
+            <strong>💡 Tip:</strong> Put {{ user.tax_set_aside_percentage }}% of each payment into savings for tax.
             {% if last_income_amount %}
-            For your last payment of £{{ "%.2f"|format(last_income_amount) }}, that's £{{ "%.2f"|format(last_income_amount * user.tax_set_aside_percentage / 100) }}.
+            For your last payment of £{{ "%.2f"|format(last_income_amount) }}, save £{{ "%.2f"|format(last_income_amount * user.tax_set_aside_percentage / 100) }}.
             {% endif %}
         </p>
     </div>
 
     <!-- Income List -->
-    <div class="bg-white rounded-lg border border-gray-200">
+    <div class="bg-white rounded-lg border border-gray-200 card-hover">
         <div class="p-6 border-b border-gray-200">
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-medium text-gray-900">Income History</h3>
+                <h3 class="text-lg font-medium text-gray-900">Payment History</h3>
                 <div class="text-sm text-gray-600">
-                    Total: <span class="font-medium amount">£{{ "%.2f"|format(total_income) }}</span>
+                    Total: <span class="font-medium text-blue-600 amount">£{{ "%.2f"|format(total_income) }}</span>
                 </div>
             </div>
         </div>
