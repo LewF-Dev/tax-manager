@@ -24,24 +24,60 @@
         }
         
         /* Smooth transitions */
-        * {
-            transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+        .transition-colors {
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         
         /* Button hover effects */
-        button:hover, a.button:hover {
+        button, a.button {
+            transition: all 0.2s ease;
+        }
+        
+        button:hover:not(:disabled), a.button:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
         
-        button:active, a.button:active {
+        button:active:not(:disabled), a.button:active {
             transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         /* Card hover effects */
+        .card-hover {
+            transition: all 0.2s ease-in-out;
+        }
+        
         .card-hover:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        /* Input focus effects */
+        input:focus, select:focus, textarea:focus {
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        
+        /* Link hover effects */
+        a {
+            transition: color 0.2s ease;
+        }
+        
+        /* Table row hover */
+        tr.hover\:bg-gray-50:hover {
+            background-color: #f9fafb;
+            transition: background-color 0.15s ease;
+        }
+        
+        /* Amount color transition */
+        .amount {
+            transition: color 0.2s ease-in-out;
         }
         
         /* Smooth scroll */
@@ -54,6 +90,73 @@
             outline: 2px solid #3B82F6;
             outline-offset: 2px;
         }
+        
+        /* Fade in animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        /* Stagger children animations */
+        .stagger-children > * {
+            animation: fadeIn 0.4s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+        .stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+        .stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+        .stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+        .stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+        .stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+        
+        /* Pulse animation for alerts */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* Slide in from right for sidebar */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(-10px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        nav a {
+            animation: slideInRight 0.3s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        nav a:nth-child(1) { animation-delay: 0.05s; }
+        nav a:nth-child(2) { animation-delay: 0.1s; }
+        nav a:nth-child(3) { animation-delay: 0.15s; }
+        nav a:nth-child(4) { animation-delay: 0.2s; }
+        nav a:nth-child(5) { animation-delay: 0.25s; }
+        nav a:nth-child(6) { animation-delay: 0.3s; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -108,7 +211,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-8">
+        <main class="flex-1 p-8 fade-in">
             {% block content %}{% endblock %}
         </main>
     </div>
