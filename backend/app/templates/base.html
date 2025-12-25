@@ -159,20 +159,20 @@
         nav a:nth-child(6) { animation-delay: 0.3s; }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     <!-- Top Bar -->
-    <header class="bg-white border-b border-gray-200">
+    <header class="bg-white border-b border-gray-200 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
-                    <h1 class="text-xl font-semibold text-gray-900">Tax Manager</h1>
+                    <h1 class="text-xl font-bold text-gray-900">Tax Manager</h1>
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-sm text-gray-600">{{ user.email }}</span>
-                    <span class="px-2 py-1 text-xs rounded {% if user.subscription_status == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                    <span class="px-3 py-1 text-xs font-medium rounded-full {% if user.subscription_status == 'active' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
                         {{ user.subscription_status|title }}
                     </span>
-                    <a href="/logout" class="text-sm text-gray-600 hover:text-gray-900">Logout</a>
+                    <a href="/logout" class="text-sm text-gray-600 hover:text-gray-900 font-medium">Logout</a>
                 </div>
             </div>
         </div>
@@ -180,30 +180,30 @@
 
     <div class="flex max-w-7xl mx-auto">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
+        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen shadow-sm">
             <nav class="p-4 space-y-1">
-                <a href="/dashboard" class="block px-4 py-2 text-sm rounded {% if active_page == 'dashboard' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                <a href="/dashboard" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'dashboard' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                     Dashboard
                 </a>
-                <a href="/income" class="block px-4 py-2 text-sm rounded {% if active_page == 'income' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                    Income
+                <a href="/income" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'income' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                    Money In
                 </a>
-                <a href="/expenses" class="block px-4 py-2 text-sm rounded {% if active_page == 'expenses' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                <a href="/expenses" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'expenses' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                     Expenses
                 </a>
-                <a href="/tax" class="block px-4 py-2 text-sm rounded {% if active_page == 'tax' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
-                    Tax
+                <a href="/tax" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'tax' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
+                    Your Tax
                 </a>
                 {% if user.uc_enabled %}
-                <a href="/uc" class="block px-4 py-2 text-sm rounded {% if active_page == 'uc' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                <a href="/uc" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'uc' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                     Universal Credit
                 </a>
                 {% endif %}
                 <div class="pt-4 mt-4 border-t border-gray-200">
-                    <a href="/settings" class="block px-4 py-2 text-sm rounded {% if active_page == 'settings' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                    <a href="/settings" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'settings' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                         Settings
                     </a>
-                    <a href="/exports" class="block px-4 py-2 text-sm rounded {% if active_page == 'exports' %}bg-gray-100 text-gray-900 font-medium{% else %}text-gray-600 hover:bg-gray-50{% endif %}">
+                    <a href="/exports" class="block px-4 py-2.5 text-sm rounded-lg {% if active_page == 'exports' %}bg-blue-50 text-blue-700 font-semibold border-l-4 border-blue-600{% else %}text-gray-700 hover:bg-gray-50 font-medium{% endif %}">
                         Exports
                     </a>
                 </div>
